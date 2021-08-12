@@ -31,7 +31,12 @@ public class UserController {
 	@GetMapping("/users/{id}")
 	// 서버에서 받아온 값이 기본타입이 string인데 int로 선언해주면 자동으로 int형으로 매핑됨.
 	public User retrieveUser(@PathVariable int id) { 
-		return service.findOne(id);
+		User user = service.findOne(id);
+		System.out.println(user);
+		if(user == null) {
+			throw new UserNotFoundException(String.format("ID[%s] not found", id));
+		}
+		return user;
 	}
 	
 	
@@ -41,6 +46,7 @@ public class UserController {
 	public ResponseEntity<User> createUser(@RequestBody User user) { // 전달받는 데이타 형식은 requestbody의 형태로 처리한다라고 명시
 		User savedUser = service.save(user);
 		
+		// 생성된 아이디에 대한 결과값을 전달받게 되면 다시 요청해야할 필요가 없어지기 때문에 네트워크 트레픽이 감소된다. 
 		URI location = ServletUriComponentsBuilder
 				.fromCurrentRequest()
 				.path("/{id}")
